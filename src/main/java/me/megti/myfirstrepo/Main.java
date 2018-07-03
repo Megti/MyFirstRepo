@@ -26,24 +26,24 @@ public class Main {
                         ch.pipeline()
                                 .addLast(ctx.newHandler(ch.alloc(), url.getHost(), 443))
                                 .addLast(new HttpClientCodec())
-                                .addLast(new HttpObjectAggregator(50*1024*1024))
+                                .addLast(new HttpObjectAggregator(50 * 1024 * 1024))
                                 .addLast(new SimpleChannelInboundHandler<FullHttpResponse>() {
-                            protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) throws Exception {
-                                System.out.println(msg);
-                                System.out.println(msg.content().toString(StandardCharsets.UTF_8));
-                            }
-                        });
+                                    protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) throws Exception {
+                                        System.out.println(msg);
+                                        System.out.println(msg.content().toString(StandardCharsets.UTF_8));
+                                    }
+                                });
                     }
                 });
 
         b.connect(url.getHost(), 443).addListener(new ChannelFutureListener() {
             public void operationComplete(ChannelFuture future) throws Exception {
-                if (future.isSuccess()){
+                if (future.isSuccess()) {
                     System.out.println("Connected");
-                    DefaultFullHttpRequest req = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,HttpMethod.GET, url.getPath() );
+                    DefaultFullHttpRequest req = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, url.getPath());
                     req.headers().set(HttpHeaderNames.HOST, url.getHost());
                     future.channel().writeAndFlush(req);
-                } else{
+                } else {
                     future.cause().printStackTrace();
                 }
             }
