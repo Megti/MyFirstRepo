@@ -21,14 +21,14 @@ public class Main {
         Bootstrap b = new Bootstrap()
                 .channel(NioSocketChannel.class)
                 .group(new NioEventLoopGroup())
-                .handler(new ChannelInitializer<Channel>() {
-                    protected void initChannel(Channel ch) throws Exception {
+                .handler(new ChannelInitializer<>() {
+                    protected void initChannel(Channel ch) {
                         ch.pipeline()
                                 .addLast(ctx.newHandler(ch.alloc(), url.getHost(), 443))
                                 .addLast(new HttpClientCodec())
                                 .addLast(new HttpObjectAggregator(50 * 1024 * 1024))
                                 .addLast(new SimpleChannelInboundHandler<FullHttpResponse>() {
-                                    protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) throws Exception {
+                                    protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) {
                                         System.out.println(msg);
                                         System.out.println(msg.content().toString(StandardCharsets.UTF_8));
                                     }
@@ -36,16 +36,14 @@ public class Main {
                     }
                 });
 
-        b.connect(url.getHost(), 443).addListener(new ChannelFutureListener() {
-            public void operationComplete(ChannelFuture future) throws Exception {
-                if (future.isSuccess()) {
-                    System.out.println("Connected");
-                    DefaultFullHttpRequest req = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, url.getPath());
-                    req.headers().set(HttpHeaderNames.HOST, url.getHost());
-                    future.channel().writeAndFlush(req);
-                } else {
-                    future.cause().printStackTrace();
-                }
+        b.connect(url.getHost(), 443).addListener((ChannelFutureListener) future -> {
+            if (future.isSuccess()) {
+                System.out.println("Connected");
+                DefaultFullHttpRequest req = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, url.getPath());
+                req.headers().set(HttpHeaderNames.HOST, url.getHost());
+                future.channel().writeAndFlush(req);
+            } else {
+                future.cause().printStackTrace();
             }
         });
     }
