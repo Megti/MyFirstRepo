@@ -7,14 +7,16 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
-import javax.net.ssl.SSLException;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 public class Main {
-    public static void main(String[] args) throws SSLException, MalformedURLException {
+    public static void main(String[] args) throws IOException {
         System.out.println("Hello World");
         URL url = new URL("https://lfblizzcon.com/available-tickets/");
         final SslContext ctx = SslContextBuilder.forClient().build();
@@ -36,7 +38,7 @@ public class Main {
                     }
                 });
 
-        b.connect(url.getHost(), 443).addListener((ChannelFutureListener) future -> {
+        /* b.connect(url.getHost(), 443).addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
                 System.out.println("Connected");
                 DefaultFullHttpRequest req = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, url.getPath());
@@ -46,5 +48,14 @@ public class Main {
                 future.cause().printStackTrace();
             }
         });
+        */
+
+
+        Document doc = Jsoup.connect("https://lfblizzcon.com/available-tickets/").get();
+        Elements list = doc.select("[href*=tickets-forsale]");
+        System.out.println(list);
+
+
+
     }
 }
