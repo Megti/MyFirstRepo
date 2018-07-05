@@ -9,11 +9,16 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -51,9 +56,17 @@ public class Main {
         */
 
 
-        Document doc = Jsoup.connect("https://lfblizzcon.com/available-tickets/").get();
-        Elements list = doc.select("[href*=tickets-forsale]");
-        System.out.println(list);
+            Document doc = Jsoup.connect("https://lfblizzcon.com/available-tickets/").get();
+            Elements list = doc.select("[href*=tickets-forsale]");
+            Set<String> s = new HashSet<>();
+            for (Element aList : list) {
+                String link = aList.attr("href");
+                if (s.add(link)) {
+                    System.out.println("Bruce is bad");
+                }
+            }
+            System.out.println(s);
+
 
 
 
