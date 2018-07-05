@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -43,7 +46,7 @@ public class Main {
                     }
                 });
 
-        /* b.connect(url.getHost(), 443).addListener((ChannelFutureListener) future -> {
+                 /* b.connect(url.getHost(), 443).addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
                 System.out.println("Connected");
                 DefaultFullHttpRequest req = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, url.getPath());
@@ -52,23 +55,33 @@ public class Main {
             } else {
                 future.cause().printStackTrace();
             }
-        });
-        */
+        });*/
 
-
-            Document doc = Jsoup.connect("https://lfblizzcon.com/available-tickets/").get();
-            Elements list = doc.select("[href*=tickets-forsale]");
-            Set<String> s = new HashSet<>();
-            for (Element aList : list) {
-                String link = aList.attr("href");
-                if (s.add(link)) {
-                    System.out.println("Bruce is bad");
-                }
+        Set<String> s = new HashSet<>();
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
+        executor.scheduleAtFixedRate(() -> {
+            try {
+                runTest(s);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            System.out.println(s);
+        },5,5,TimeUnit.SECONDS);
 
 
 
 
+
+    }
+    public static void runTest(Set<String> s) throws IOException {
+        System.out.println("Running Test");
+        Document doc = Jsoup.connect("https://lfblizzcon.com/available-tickets/").get();
+        Elements list = doc.select("[href*=tickets-forsale]");
+        for (Element aList : list) {
+            String link = aList.attr("href");
+            if (s.add(link)) {
+                System.out.println("Bruce is bad");
+            }
+        }
+        System.out.println(s);
     }
 }
